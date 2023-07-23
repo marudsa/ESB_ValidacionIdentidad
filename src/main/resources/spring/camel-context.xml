@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:camel="http://camel.apache.org/schema/spring"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    <!-- Configuración del componente activemq -->
+    <bean class="org.apache.activemq.camel.component.ActiveMQComponent" id="activemq">
+        <property name="connectionFactory" ref="connectionFactory"/>
+    </bean>
+    <!-- Configuración de Camel -->
+    <camel:camelContext id="camelContext">
+        <camel:route id="_route1">
+            <camel:from id="_from1" uri="activemq:queue:AMQ_VALIDENTIDADREGISTRADURIA.ESB1.Q.IN"/>
+            <camel:bean id="_bean1" method="transformMessage" ref="listenerTransESB1"/>
+            <camel:to id="_to1" uri="activemq:queue:AMQ.IA.REGISOAP.Q.IN"/>
+        </camel:route>
+        <camel:route id="_route2">
+            <camel:from id="_from2" uri="activemq:queue:AMQ_VALIDENTIDADREGISTRADURIA.ESB1.Q.OUT"/>
+            <camel:bean id="_bean2" method="transformResponse" ref="responseTransformerBean"/>
+            <camel:to id="_to2" uri="activemq:queue:AMQ.CA.Q.RES"/>
+        </camel:route>
+    </camel:camelContext>
+    <!-- Definición del bean ListenerESB1 -->
+    <bean class="org.mycompany.ListenerESB1" id="listenerTransESB1"/>
+    <bean class="org.mycompany.ResponseTransformer" id="responseTransformerBean"/>
+</beans>
